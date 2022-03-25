@@ -4,7 +4,7 @@ pragma solidity ^0.8.2;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-
+ 
 contract NftExchange is Ownable {
 
     IERC721 private _nftCode;
@@ -59,9 +59,12 @@ contract NftExchange is Ownable {
         uint256 price = _prices[tokenId];
         require(msg.value >= price, string(abi.encodePacked("NftExchange: value Quantity less than ", Strings.toString(getMinDuration()))));
         address from = _nftCode.ownerOf(tokenId);
-        _nftCode.safeTransferFrom(from, msg.sender, tokenId);
-        _timestamps[tokenId] = 0;
 
+        (bool success, ) = from.call{value: price}("");
+        require(success, "NftExchange: payment failure!");
+        _nftCode.safeTransferFrom(from, msg.sender, tokenId);
+        
+        _timestamps[tokenId] = 0;
         emit DonePurchase(from, msg.sender, tokenId, price); 
     }
 }
