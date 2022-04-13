@@ -109,6 +109,7 @@ contract NftExchange is Ownable {
                 )
             )
         );
+        require(price <= 9999999900000000000000, "price max is 9999.9999");
         _offShelfTime[tokenId] = offShelfTime;
         _prices[tokenId] = price;
         emit DoneOnShelf(owner, tokenId, price, _offShelfTime[tokenId]);
