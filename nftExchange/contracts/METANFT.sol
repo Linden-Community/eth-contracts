@@ -37,4 +37,8 @@ contract METANFT is Initializable, ERC721Upgradeable, AccessControlUpgradeable {
     {
         return super.supportsInterface(interfaceId);
     }
+
+    function getVersion() public pure returns (uint256 version) {
+        return 0;
+    }
 }

@@ -24,7 +24,7 @@
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 
 const HDWalletProvider = require('@truffle/hdwallet-provider');
-const { alchemyApiKey, mnemonic } = require('./secrets.json');
+const { alchemyApiKey, mnemonic, etherscan, bscscan } = require('./secrets.json');
 
 module.exports = {
   /**
@@ -56,6 +56,13 @@ module.exports = {
       network_id: 4,
       gasPrice: 10e9,
       skipDryRun: true,
+    },
+    bscTestnet: {
+      provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545`),
+      network_id: 97,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
     },
     // Another network with more advanced options...
     // advanced: {
@@ -103,7 +110,13 @@ module.exports = {
       // }
     }
   },
-
+  plugins: [
+    'truffle-plugin-verify'
+  ],
+  api_keys: {
+    etherscan: etherscan,
+    bscscan: bscscan
+  }
   // Truffle DB is currently disabled by default; to enable it, change enabled:
   // false to enabled: true. The default storage location can also be
   // overridden by specifying the adapter settings, as shown in the commented code below.
