@@ -1,16 +1,62 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract NftExchange is Ownable {
+contract NftExchange is
+    Initializable,
+    AccessControlUpgradeable,
+    UUPSUpgradeable
+{
+    bytes32 public constant EXADMIN_ROLE = keccak256("EXADMIN_ROLE");
+    bytes32 public constant WITHDRAW_ROLE = keccak256("WITHDRAW_ROLE");
+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+
     IERC721 private _nftCode;
     uint256 private _minDuration;
     uint256 private _maxDuration;
     mapping(uint256 => uint256) private _offShelfTime;
     mapping(uint256 => uint256) private _prices;
+
+    function getVersion() public pure returns (uint256 version) {
+        return 1;
+    }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        override
+        onlyRole(UPGRADER_ROLE)
+    {}
+
+    // minDuration = 86400
+    // maxDuration = 15552000
+    function initialize(
+        IERC721 nftCode,
+        uint256 minDuration,
+        uint256 maxDuration
+    ) public initializer {
+        _nftCode = nftCode;
+        _minDuration = minDuration;
+        _maxDuration = maxDuration;
+
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(EXADMIN_ROLE, msg.sender);
+        _grantRole(WITHDRAW_ROLE, msg.sender);
+        _grantRole(UPGRADER_ROLE, msg.sender);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(AccessControlUpgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 
     event DoneOnShelf(
         address owner,
@@ -26,19 +72,7 @@ contract NftExchange is Ownable {
     );
     event DoneWithdraw(address to, uint256 amount);
 
-    // minDuration = 86400
-    // maxDuration = 15552000
-    constructor(
-        IERC721 nftCode,
-        uint256 minDuration,
-        uint256 maxDuration
-    ) {
-        _nftCode = nftCode;
-        _minDuration = minDuration;
-        _maxDuration = maxDuration;
-    }
-
-    function setMinDuration(uint256 duration) public onlyOwner {
+    function setMinDuration(uint256 duration) public onlyRole(EXADMIN_ROLE) {
         _minDuration = duration;
     }
 
@@ -46,7 +80,7 @@ contract NftExchange is Ownable {
         return _minDuration;
     }
 
-    function setMaxDuration(uint256 duration) public onlyOwner {
+    function setMaxDuration(uint256 duration) public onlyRole(EXADMIN_ROLE) {
         _maxDuration = duration;
     }
 
@@ -54,7 +88,7 @@ contract NftExchange is Ownable {
         return _maxDuration;
     }
 
-    function setNftCode(IERC721 nftCode) public onlyOwner {
+    function setNftCode(IERC721 nftCode) public onlyRole(EXADMIN_ROLE) {
         _nftCode = nftCode;
     }
 
@@ -74,7 +108,10 @@ contract NftExchange is Ownable {
         return _prices[tokenId];
     }
 
-    function withdraw(address to, uint256 amount) public onlyOwner {
+    function withdraw(address to, uint256 amount)
+        public
+        onlyRole(WITHDRAW_ROLE)
+    {
         // require(amount <= address(this).balance, "NftExchange: withdraw amount error!");
         (bool success, ) = to.call{value: amount}("");
         require(success, "NftExchange: withdraw error!");
