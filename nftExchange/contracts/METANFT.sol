@@ -53,7 +53,7 @@ contract METANFT is
         address to,
         uint256 tokenId,
         string memory uri
-    ) public onlyRole(MINTER_ROLE) {
+    ) public {
         safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
     }

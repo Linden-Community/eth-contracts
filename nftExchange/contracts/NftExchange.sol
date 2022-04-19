@@ -75,7 +75,7 @@ contract NftExchange is Ownable {
     }
 
     function withdraw(address to, uint256 amount) public onlyOwner {
-        require(amount <= address(this).balance, "NftExchange: withdraw amount error!");
+        // require(amount <= address(this).balance, "NftExchange: withdraw amount error!");
         (bool success, ) = to.call{value: amount}("");
         require(success, "NftExchange: withdraw error!");
 
