@@ -5,5 +5,5 @@ const NftExchange = artifacts.require("NftExchange");
 
 module.exports = async function (deployer) {
   const nft = await METANFT.deployed();
-  await deployProxy(NftExchange, [nft.address, 86400, 15552000], { deployer, initializer: 'initialize' });
+  // await deployProxy(NftExchange, [nft.address, 86400, 15552000], { deployer, initializer: 'initialize' });
 };

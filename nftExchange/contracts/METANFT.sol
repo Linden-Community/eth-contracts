@@ -18,7 +18,7 @@ contract METANFT is
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
     function getVersion() public pure returns (uint256 version) {
-        return 1;
+        return 2;
     }
 
     function initialize() public initializer {
@@ -54,7 +54,7 @@ contract METANFT is
         uint256 tokenId,
         string memory uri
     ) public {
-        safeMint(to, tokenId);
+        _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
     }
 
