@@ -23,7 +23,7 @@ contract NftExchange is
     mapping(uint256 => uint256) private _prices;
 
     function getVersion() public pure returns (uint256 version) {
-        return 1;
+        return 2;
     }
 
     function _authorizeUpgrade(address newImplementation)
@@ -60,6 +60,7 @@ contract NftExchange is
 
     event DoneOnShelf(
         address owner,
+        address nftCode,
         uint256 tokenId,
         uint256 price,
         uint256 timestamps
@@ -67,6 +68,7 @@ contract NftExchange is
     event DonePurchase(
         address from,
         address to,
+        address nftCode,
         uint256 tokenId,
         uint256 price
     );
@@ -150,7 +152,7 @@ contract NftExchange is
         require(price <= 9999999900000000000000, "price max is 9999.9999");
         _offShelfTime[tokenId] = offShelfTime;
         _prices[tokenId] = price;
-        emit DoneOnShelf(owner, tokenId, price, _offShelfTime[tokenId]);
+        emit DoneOnShelf(owner, address(getNftCode()), tokenId, price, _offShelfTime[tokenId]);
     }
 
     function buy(uint256 tokenId) public payable {
@@ -176,6 +178,6 @@ contract NftExchange is
         _nftCode.safeTransferFrom(from, msg.sender, tokenId);
 
         _offShelfTime[tokenId] = 0;
-        emit DonePurchase(from, msg.sender, tokenId, price);
+        emit DonePurchase(from, msg.sender, address(getNftCode()), tokenId, price);
     }
 }
