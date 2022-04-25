@@ -24,7 +24,7 @@
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 
 const HDWalletProvider = require('@truffle/hdwallet-provider');
-const { alchemyApiKey, mnemonic, etherscan, bscscan } = require('./secrets.json');
+const { alchemyApiKey, mnemonic, etherscan, bscscan, mumbai, polygonscan } = require('./secrets.json');
 
 module.exports = {
   /**
@@ -61,6 +61,13 @@ module.exports = {
       provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545`),
       network_id: 97,
       confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    mumbai: {
+      provider: () => new HDWalletProvider(mnemonic, `https://speedy-nodes-nyc.moralis.io/${mumbai}/polygon/mumbai`),
+      network_id: 80001,
+      confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
     },
@@ -115,7 +122,8 @@ module.exports = {
   ],
   api_keys: {
     etherscan: etherscan,
-    bscscan: bscscan
+    bscscan: bscscan,
+    polygonscan: polygonscan
   }
   // Truffle DB is currently disabled by default; to enable it, change enabled:
   // false to enabled: true. The default storage location can also be
