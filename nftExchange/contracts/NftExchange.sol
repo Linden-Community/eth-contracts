@@ -23,7 +23,7 @@ contract NftExchange is
     mapping(uint256 => uint256) private _prices;
 
     function getVersion() public pure returns (uint256 version) {
-        return 2;
+        return 3;
     }
 
     function _authorizeUpgrade(address newImplementation)
@@ -75,6 +75,7 @@ contract NftExchange is
     event DoneWithdraw(address to, uint256 amount);
 
     function setMinDuration(uint256 duration) public onlyRole(EXADMIN_ROLE) {
+        require(duration <= 8640000000, "NftExchange: Min duration error!");
         _minDuration = duration;
     }
 
@@ -83,6 +84,8 @@ contract NftExchange is
     }
 
     function setMaxDuration(uint256 duration) public onlyRole(EXADMIN_ROLE) {
+        require(duration <= 8640000000, "NftExchange: Max duration error!");
+        require(duration >= getMinDuration(), "NftExchange: Max duration should be greater than the min duration!");
         _maxDuration = duration;
     }
 
@@ -152,7 +155,13 @@ contract NftExchange is
         require(price <= 9999999900000000000000, "price max is 9999.9999");
         _offShelfTime[tokenId] = offShelfTime;
         _prices[tokenId] = price;
-        emit DoneOnShelf(owner, address(getNftCode()), tokenId, price, _offShelfTime[tokenId]);
+        emit DoneOnShelf(
+            owner,
+            address(getNftCode()),
+            tokenId,
+            price,
+            _offShelfTime[tokenId]
+        );
     }
 
     function buy(uint256 tokenId) public payable {
@@ -178,6 +187,12 @@ contract NftExchange is
         _nftCode.safeTransferFrom(from, msg.sender, tokenId);
 
         _offShelfTime[tokenId] = 0;
-        emit DonePurchase(from, msg.sender, address(getNftCode()), tokenId, price);
+        emit DonePurchase(
+            from,
+            msg.sender,
+            address(getNftCode()),
+            tokenId,
+            price
+        );
     }
 }
