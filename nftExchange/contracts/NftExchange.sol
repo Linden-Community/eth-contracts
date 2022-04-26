@@ -23,7 +23,7 @@ contract NftExchange is
     mapping(uint256 => uint256) private _prices;
 
     function getVersion() public pure returns (uint256 version) {
-        return 3;
+        return 5;
     }
 
     function _authorizeUpgrade(address newImplementation)
@@ -76,6 +76,7 @@ contract NftExchange is
 
     function setMinDuration(uint256 duration) public onlyRole(EXADMIN_ROLE) {
         require(duration <= 8640000000, "NftExchange: Min duration error!");
+        require(duration < getMaxDuration(), "NftExchange: Min duration should be less than the max duration!");
         _minDuration = duration;
     }
 
@@ -85,7 +86,7 @@ contract NftExchange is
 
     function setMaxDuration(uint256 duration) public onlyRole(EXADMIN_ROLE) {
         require(duration <= 8640000000, "NftExchange: Max duration error!");
-        require(duration >= getMinDuration(), "NftExchange: Max duration should be greater than the min duration!");
+        require(duration > getMinDuration(), "NftExchange: Max duration should be greater than the min duration!");
         _maxDuration = duration;
     }
 
