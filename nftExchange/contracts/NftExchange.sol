@@ -16,14 +16,15 @@ contract NftExchange is
     bytes32 public constant WITHDRAW_ROLE = keccak256("WITHDRAW_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
-    IERC721 private _nftCode;
+    IERC721[] private _nftCodes;
+    mapping(address => bool) _isInCodeList;
     uint256 private _minDuration;
     uint256 private _maxDuration;
-    mapping(uint256 => uint256) private _offShelfTime;
-    mapping(uint256 => uint256) private _prices;
+    mapping(address => mapping(uint256 => uint256)) private _offShelfTime;
+    mapping(address => mapping(uint256 => uint256)) private _prices;
 
     function getVersion() public pure returns (uint256 version) {
-        return 5;
+        return 1;
     }
 
     function _authorizeUpgrade(address newImplementation)
@@ -34,12 +35,10 @@ contract NftExchange is
 
     // minDuration = 86400
     // maxDuration = 15552000
-    function initialize(
-        IERC721 nftCode,
-        uint256 minDuration,
-        uint256 maxDuration
-    ) public initializer {
-        _nftCode = nftCode;
+    function initialize(uint256 minDuration, uint256 maxDuration)
+        public
+        initializer
+    {
         _minDuration = minDuration;
         _maxDuration = maxDuration;
 
@@ -76,7 +75,10 @@ contract NftExchange is
 
     function setMinDuration(uint256 duration) public onlyRole(EXADMIN_ROLE) {
         require(duration <= 8640000000, "NftExchange: Min duration error!");
-        require(duration < getMaxDuration(), "NftExchange: Min duration should be less than the max duration!");
+        require(
+            duration < getMaxDuration(),
+            "NftExchange: Min duration should be less than the max duration!"
+        );
         _minDuration = duration;
     }
 
@@ -86,7 +88,10 @@ contract NftExchange is
 
     function setMaxDuration(uint256 duration) public onlyRole(EXADMIN_ROLE) {
         require(duration <= 8640000000, "NftExchange: Max duration error!");
-        require(duration > getMinDuration(), "NftExchange: Max duration should be greater than the min duration!");
+        require(
+            duration > getMinDuration(),
+            "NftExchange: Max duration should be greater than the min duration!"
+        );
         _maxDuration = duration;
     }
 
@@ -94,24 +99,52 @@ contract NftExchange is
         return _maxDuration;
     }
 
-    function setNftCode(IERC721 nftCode) public onlyRole(EXADMIN_ROLE) {
-        _nftCode = nftCode;
+    function addNftCode(IERC721 nftCode) public onlyRole(EXADMIN_ROLE) {
+        require(
+            !_isInCodeList[address(nftCode)],
+            "the nftCode is already in code list."
+        );
+
+        _nftCodes.push(nftCode);
+        _isInCodeList[address(nftCode)] = true;
     }
 
-    function getNftCode() public view returns (IERC721 nftCode) {
-        return _nftCode;
+    function rmNftCode(IERC721 nftCode) public onlyRole(EXADMIN_ROLE) {
+        require(
+            _isInCodeList[address(nftCode)],
+            "the nftCode is not in code list."
+        );
+
+        bool finded = false;
+        for (uint256 i = 0; i < _nftCodes.length; i++) {
+            if (finded) {
+                _nftCodes[i - 1] = _nftCodes[i];
+            } else if (_nftCodes[i] == nftCode) {
+                finded = true;
+            }
+        }
+        _nftCodes.pop();
+        _isInCodeList[address(nftCode)] = false;
     }
 
-    function getOffShelfTime(uint256 tokenId)
+    function getNftCodes() public view returns (IERC721[] memory nftCodes) {
+        return _nftCodes;
+    }
+
+    function getOffShelfTime(address nftCode, uint256 tokenId)
         public
         view
         returns (uint256 offShelfTime)
     {
-        return _offShelfTime[tokenId];
+        return _offShelfTime[nftCode][tokenId];
     }
 
-    function getPrices(uint256 tokenId) public view returns (uint256 price) {
-        return _prices[tokenId];
+    function getPrices(address nftCode, uint256 tokenId)
+        public
+        view
+        returns (uint256 price)
+    {
+        return _prices[nftCode][tokenId];
     }
 
     function withdraw(address to, uint256 amount)
@@ -126,11 +159,16 @@ contract NftExchange is
     }
 
     function sell(
+        IERC721 nftCode,
         uint256 tokenId,
         uint256 price,
         uint256 offShelfTime
     ) public {
-        address owner = _nftCode.ownerOf(tokenId);
+        require(
+            _isInCodeList[address(nftCode)],
+            "please add the nftCode in the code list first."
+        );
+        address owner = nftCode.ownerOf(tokenId);
         require(msg.sender == owner, "NftExchange: seller is not nft owner");
         require(
             offShelfTime >= getMinDuration() + block.timestamp,
@@ -154,23 +192,27 @@ contract NftExchange is
             )
         );
         require(price <= 9999999900000000000000, "price max is 9999.9999");
-        _offShelfTime[tokenId] = offShelfTime;
-        _prices[tokenId] = price;
+        _offShelfTime[address(nftCode)][tokenId] = offShelfTime;
+        _prices[address(nftCode)][tokenId] = price;
         emit DoneOnShelf(
             owner,
-            address(getNftCode()),
+            address(nftCode),
             tokenId,
             price,
-            _offShelfTime[tokenId]
+            _offShelfTime[address(nftCode)][tokenId]
         );
     }
 
-    function buy(uint256 tokenId) public payable {
+    function buy(IERC721 nftCode, uint256 tokenId) public payable {
         require(
-            block.timestamp <= getOffShelfTime(tokenId),
+            _isInCodeList[address(nftCode)],
+            "please add the nftCode in the code list first."
+        );
+        require(
+            block.timestamp <= getOffShelfTime(address(nftCode), tokenId),
             "NftExchange: nft not on the shelf!"
         );
-        uint256 price = _prices[tokenId];
+        uint256 price = _prices[address(nftCode)][tokenId];
         require(
             msg.value >= price,
             string(
@@ -180,20 +222,14 @@ contract NftExchange is
                 )
             )
         );
-        address from = _nftCode.ownerOf(tokenId);
+        address from = nftCode.ownerOf(tokenId);
 
         uint256 harvest = (price / 100) * 98;
         (bool success, ) = from.call{value: harvest}("");
         require(success, "NftExchange: payment failure!");
-        _nftCode.safeTransferFrom(from, msg.sender, tokenId);
+        nftCode.safeTransferFrom(from, msg.sender, tokenId);
 
-        _offShelfTime[tokenId] = 0;
-        emit DonePurchase(
-            from,
-            msg.sender,
-            address(getNftCode()),
-            tokenId,
-            price
-        );
+        _offShelfTime[address(nftCode)][tokenId] = 0;
+        emit DonePurchase(from, msg.sender, address(nftCode), tokenId, price);
     }
 }

@@ -14,13 +14,13 @@ contract('METANFT', function ([owner, other]) {
   });
 
   it('test mint 1', async function () {
-    await this.nft.safeMint(owner, 100)
+    await this.nft.safeMint(owner, 100, { from: owner })
     expect((await this.nft.ownerOf(100)).toString()).to.equal(owner);
     console.log((await this.nft.tokenURI(100)).toString())
   });
 
   it('test mint 2', async function () {
-    await this.nft.safeMint(other, 101, "abcde")
+    await this.nft.methods['safeMint(address,uint256,string)'](other, 101, "abcde", { from: other })
     expect((await this.nft.ownerOf(101)).toString()).to.equal(other);
     console.log((await this.nft.tokenURI(101)).toString())
   });
