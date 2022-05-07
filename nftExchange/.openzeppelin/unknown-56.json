@@ -2,30 +2,20 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0xAFC613782D4Ae211B1bcb0E0e31eD6Cd96014f3F",
-      "txHash": "0xcb4bc91f409b3b68aaf1caf947fd126f257de3ee40fdc19337bf7e928be2925c",
+      "address": "0x1f9887C6F9Bd49952A68BBbFFDDF99334B6fF823",
+      "txHash": "0x23b0e57a626dc77e7f3c7daac6e38080bd22cbfb1b3719d4f811846546ed0b2e",
       "kind": "uups"
     },
     {
-      "address": "0x4097dd0ee443AdF4250c10f48EA14454B0de9DF8",
-      "txHash": "0x8a68bf993e9ff680443b50fe909253e9d794a8220dd5fa0632d860047222ccd2",
-      "kind": "uups"
-    },
-    {
-      "address": "0x0023841153813AdB8A723a06974c012b306136c3",
-      "txHash": "0x0c8ff8fdfb6d1723bd15648044a1a0f2d0eec7b9e77580d8c840ba6dadb29d90",
-      "kind": "uups"
-    },
-    {
-      "address": "0x990CfeB4d7EC56c95a08881896630AA6F92D04Dd",
-      "txHash": "0x866b0708ae6c2b80a220c79213889f677e4d2802c8cadf81f27b29da5baab7d7",
+      "address": "0xAcD1fD491Eb468f93209F2e63cCFdc9926af7731",
+      "txHash": "0xe2be5fb02da68098583faaa8fa55d69da97899ceb64a607cb43638fbf05f5335",
       "kind": "uups"
     }
   ],
   "impls": {
     "13d5a28c30f4cdabe6055028bd76adab87f059b960111eaa1aa297eba34a9e66": {
-      "address": "0xDaFbfA8c14AA92C29C9DDB939bc291C58608D8FF",
-      "txHash": "0xb36d426cecf5e39f6018f0f5655693cff90c0dad499a94e271040cee502e7c27",
+      "address": "0x4097dd0ee443AdF4250c10f48EA14454B0de9DF8",
+      "txHash": "0xc747e4dbb8ff2313097391fd82ceb92d154d345bb8954d084c34b078dc65a294",
       "layout": {
         "storage": [
           {
@@ -190,9 +180,9 @@
         }
       }
     },
-    "8730c8087c4e185106ca64c0e21cc174f94c72abdb5cfb463900668d32763a13": {
-      "address": "0x29C7D388104e6B75e8C6a1DF28aac4d4FbAa1675",
-      "txHash": "0xae51701bcaeb79ec2175bb521d4e729dbfc3ac2f9eb57deda78774d45141fa5a",
+    "36368394f69573191ac64e3bcd842d512d445c36d1cf51267209667bca3882d6": {
+      "address": "0x990CfeB4d7EC56c95a08881896630AA6F92D04Dd",
+      "txHash": "0xa7a848e071b98e97eda3786bc7852c09d1b16b479a53bb2b14e98693f18bd6b7",
       "layout": {
         "storage": [
           {
@@ -245,41 +235,62 @@
           },
           {
             "contract": "NftExchange",
-            "label": "_nftCode",
-            "type": "t_contract(IERC721)2929",
+            "label": "_nftCodes",
+            "type": "t_array(t_contract(IERC721)2929)dyn_storage",
             "src": "..\\project:\\contracts\\NftExchange.sol:19"
+          },
+          {
+            "contract": "NftExchange",
+            "label": "_isInCodeList",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "..\\project:\\contracts\\NftExchange.sol:20"
           },
           {
             "contract": "NftExchange",
             "label": "_minDuration",
             "type": "t_uint256",
-            "src": "..\\project:\\contracts\\NftExchange.sol:20"
+            "src": "..\\project:\\contracts\\NftExchange.sol:21"
           },
           {
             "contract": "NftExchange",
             "label": "_maxDuration",
             "type": "t_uint256",
-            "src": "..\\project:\\contracts\\NftExchange.sol:21"
-          },
-          {
-            "contract": "NftExchange",
-            "label": "_offShelfTime",
-            "type": "t_mapping(t_uint256,t_uint256)",
             "src": "..\\project:\\contracts\\NftExchange.sol:22"
           },
           {
             "contract": "NftExchange",
-            "label": "_prices",
-            "type": "t_mapping(t_uint256,t_uint256)",
+            "label": "_offShelfTime",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
             "src": "..\\project:\\contracts\\NftExchange.sol:23"
+          },
+          {
+            "contract": "NftExchange",
+            "label": "_prices",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+            "src": "..\\project:\\contracts\\NftExchange.sol:24"
           }
         ],
         "types": {
+          "t_array(t_contract(IERC721)2929)dyn_storage": {
+            "label": "contract IERC721[]"
+          },
           "t_contract(IERC721)2929": {
             "label": "contract IERC721"
           },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
           "t_uint256": {
             "label": "uint256"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
+            "label": "mapping(address => mapping(uint256 => uint256))"
           },
           "t_mapping(t_uint256,t_uint256)": {
             "label": "mapping(uint256 => uint256)"
@@ -305,15 +316,6 @@
                 "type": "t_bytes32"
               }
             ]
-          },
-          "t_mapping(t_address,t_bool)": {
-            "label": "mapping(address => bool)"
-          },
-          "t_address": {
-            "label": "address"
-          },
-          "t_bool": {
-            "label": "bool"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"

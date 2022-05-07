@@ -64,6 +64,13 @@ module.exports = {
       timeoutBlocks: 200,
       skipDryRun: true
     },
+    bscMainnet: {
+      provider: () => new HDWalletProvider(mnemonic, `https://bsc-dataseed.binance.org`),
+      network_id: 56,
+      confirmations: 2,
+      timeoutBlocks: 1000,
+      skipDryRun: true
+    },
     mumbai: {
       provider: () => new HDWalletProvider(mnemonic, `https://speedy-nodes-nyc.moralis.io/${mumbai}/polygon/mumbai`),
       network_id: 80001,
