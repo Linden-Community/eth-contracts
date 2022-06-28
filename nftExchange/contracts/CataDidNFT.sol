@@ -27,6 +27,10 @@ contract CataDidNFT is
     event MintDid(address creator, address to, uint256 tokenId, string did);
     event TransferDid(address from, address to, uint256 tokenId, string did);
 
+    function getVersion() public pure returns (uint256 version) {
+        return 0;
+    }
+
     function initialize() public initializer {
         __ERC721_init("CataDidNFT", "DID");
         __ERC721URIStorage_init();
@@ -73,10 +77,11 @@ contract CataDidNFT is
         super._burn(tokenId);
     }
 
-    function _transfer(address from, address to, uint256 tokenId)
-        internal
-        override(ERC721Upgradeable)
-    {
+    function _transfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override(ERC721Upgradeable) {
         super._transfer(from, to, tokenId);
         _rmTokenId(from, tokenId);
         _setOwner(to, tokenId);
@@ -129,9 +134,9 @@ contract CataDidNFT is
             if (i != 0) {
                 dids = concat(dids, ",");
             }
-            dids = concat(dids, "\"");
+            dids = concat(dids, '"');
             dids = concat(dids, did);
-            dids = concat(dids, "\"");
+            dids = concat(dids, '"');
         }
         return concat(dids, "]");
     }
@@ -149,6 +154,11 @@ contract CataDidNFT is
         }
         require(access, "CataDidNFT: Invalid did.");
         _mintDid(to, did);
+    }
+
+    function transferDid(address from, address to, string memory did) public {
+        uint256 tokenId = _did2tokenId[did];
+        safeTransferFrom(from, to, tokenId);
     }
 
     function concat(string memory a, string memory b)
@@ -186,12 +196,16 @@ contract CataDidNFT is
         }
     }
 
-    function getBaseUri(string memory did) internal pure returns (string memory) {
+    function getBaseUri(string memory did)
+        internal
+        pure
+        returns (string memory)
+    {
         bytes memory strBytes = bytes(did);
         uint256 index = strBytes.length;
         for (uint256 i = 0; i < strBytes.length; i++) {
             if (strBytes[i] == bytes(".")[0]) {
-                index = i+1;
+                index = i + 1;
                 break;
             }
         }
