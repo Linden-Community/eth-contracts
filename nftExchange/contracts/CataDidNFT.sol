@@ -28,7 +28,7 @@ contract CataDidNFT is
     event TransferDid(address from, address to, uint256 tokenId, string did);
 
     function getVersion() public pure returns (uint256 version) {
-        return 1;
+        return 3;
     }
 
     function initialize() public initializer {
