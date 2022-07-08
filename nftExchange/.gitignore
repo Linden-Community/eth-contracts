@@ -17,7 +17,6 @@ cache
 
 # Build artefacts
 dist
-build
 bundle.js
 
 # Deployment files
