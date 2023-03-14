@@ -1,8 +1,8 @@
 const { upgradeProxy } = require('@openzeppelin/truffle-upgrades');
 
-const NftExchange = artifacts.require("NftExchange");
+const AiToken721 = artifacts.require("AiToken");
 
 module.exports = async function (deployer) {
-  // const existing = await NftExchange.deployed();
-  // await upgradeProxy(existing.address, NftExchange, { deployer });
+  const existing = await AiToken721.deployed();
+  await upgradeProxy(existing.address, AiToken721, { deployer });
 };

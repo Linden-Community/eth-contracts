@@ -58,10 +58,10 @@ module.exports = {
       skipDryRun: true,
     },
     bscTestnet: {
-      provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545`),
+      provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545/`),
       network_id: 97,
-      confirmations: 10,
-      timeoutBlocks: 200,
+      confirmations: 3,
+      timeoutBlocks: 2000,
       skipDryRun: true
     },
     bscMainnet: {

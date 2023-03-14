@@ -1,7 +1,7 @@
 const { deployProxy } = require('@openzeppelin/truffle-upgrades');
 
-const METANFT = artifacts.require("METANFT");
+const B3Token1155 = artifacts.require("B3Token");
 
 module.exports = async function (deployer) {
-  // await deployProxy(METANFT, [], { deployer, initializer: 'initialize' });
+  // await deployProxy(B3Token1155, [], { deployer, initializer: 'initialize' });
 };
