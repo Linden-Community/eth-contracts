@@ -44,16 +44,20 @@ contract AiToken is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeabl
     function convertB3Nft(uint256 id) public {
         uint256 amount = b3.balanceOf(msg.sender, id);
         for(uint i=0; i<amount; i++) {
-            safeMint(msg.sender, baseUri);
+            _baseMint(msg.sender, baseUri);
         }
         b3.safeTransferFrom(msg.sender, address(this), id, amount, "");
     }
 
-    function safeMint(address to, string memory uri) public onlyOwner {
+    function _baseMint(address to, string memory uri) private {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+    }
+
+    function safeMint(address to, string memory uri) public onlyOwner {
+        _baseMint(to, uri);
     }
 
     function _authorizeUpgrade(address newImplementation)
